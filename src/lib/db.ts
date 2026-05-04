@@ -134,10 +134,17 @@ function initDb(db: Database.Database) {
     );
   `);
 
-  // Seed admin user
-  const admin = db.prepare("SELECT id FROM users WHERE email = ?").get('luiz@otmow.com');
-  if (!admin) {
-    db.prepare("INSERT OR IGNORE INTO users (email, name, role) VALUES (?, ?, 'admin')").run('luiz@otmow.com', 'Luiz');
+  // Seed admin users
+  const adminEmails = ['luiz@otmow.com', 'diegocaporusso@gmail.com'];
+  for (const email of adminEmails) {
+    const exists = db.prepare("SELECT id FROM users WHERE email = ?").get(email);
+    if (!exists) {
+      db.prepare("INSERT OR IGNORE INTO users (email, name, role) VALUES (?, ?, 'admin')").run(
+        email, 
+        email.split('@')[0], 
+        'admin'
+      );
+    }
   }
 
   // Seed initial cycle
