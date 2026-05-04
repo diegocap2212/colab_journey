@@ -4,6 +4,15 @@ import { getDb } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
   const session = await getSessionFromRequest(req);
-  if (!session) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  
+  // BYPASS AUTH: Temporary for demo/preview as requested by user
+  if (!session) {
+    return NextResponse.json({
+      email: 'diegocaporusso@gmail.com',
+      name: 'Diego (Admin)',
+      role: 'admin'
+    });
+  }
+  
   return NextResponse.json(session);
 }

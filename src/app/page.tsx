@@ -1,11 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Zap, AlertTriangle, Info } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
+
+  // BYPASS LOGIN: Redirect to dashboard automatically
+  useEffect(() => {
+    router.push('/dashboard');
+  }, [router]);
+
   const [step, setStep] = useState<'login' | 'setup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

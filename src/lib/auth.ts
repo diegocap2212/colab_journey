@@ -42,7 +42,16 @@ export async function getSession(): Promise<SessionPayload | null> {
 
 export async function getSessionFromRequest(req: NextRequest): Promise<SessionPayload | null> {
   const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return null;
+  
+  // BYPASS AUTH: Temporary for demo/preview
+  if (!token) {
+    return {
+      email: 'diegocaporusso@gmail.com',
+      name: 'Diego (Admin)',
+      role: 'admin'
+    };
+  }
+
   return verifySession(token);
 }
 
