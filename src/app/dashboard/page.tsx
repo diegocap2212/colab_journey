@@ -82,6 +82,7 @@ export default function DashboardPage() {
   const [cycle, setCycle] = useState<any>(null);
   const [matrixData, setMatrixData] = useState<any>(null);
   const [pdis, setPdis] = useState<any[]>([]);
+  const [usersCount, setUsersCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -90,12 +91,14 @@ export default function DashboardPage() {
       fetch('/api/cycles').then(r => r.json()),
       fetch('/api/competencies').then(r => r.ok ? r.json() : null),
       fetch('/api/pdi').then(r => r.ok ? r.json() : []),
-    ]).then(([fbs, cycles, matrix, pdi]) => {
+      fetch('/api/users').then(r => r.ok ? r.json() : []),
+    ]).then(([fbs, cycles, matrix, pdi, users]) => {
       setFeedbacks(Array.isArray(fbs) ? fbs : []);
       const active = Array.isArray(cycles) ? cycles.find((c: any) => c.is_active) : null;
       setCycle(active || null);
       setMatrixData(matrix);
       setPdis(Array.isArray(pdi) ? pdi : []);
+      setUsersCount(Array.isArray(users) ? users.length : 0);
       setLoading(false);
     });
   }, []);
@@ -365,6 +368,66 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
+
+          {/* Participation Card for Managers */}
+          {isPrivileged && cycle && (
+            <div className="card-elevated" style={{ 
+              background: 'linear-gradient(135deg, var(--bg-card), rgba(99,102,241,0.03))',
+              border: '1px solid var(--border-brand)'
+            }}>
+              <h3 style={{ marginBottom: '16px', fontSize: '1rem' }}>Participação do Time</h3>
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.8125rem' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Autoavaliações Submetidas</span>
+                  <span style={{ fontWeight: 700, color: 'var(--brand-primary)' }}>
+                    {matrixData?.participants?.length ?? 0} / {usersCount}
+                  </span>
+                </div>
+                <div style={{ height: '8px', background: 'var(--bg-elevated)', borderRadius: '999px', overflow: 'hidden' }}>
+                  <div style={{ 
+                    width: `${((matrixData?.participants?.length ?? 0) / (usersCount || 1)) * 100}%`, 
+                    height: '100%', 
+                    background: 'var(--brand-primary)', 
+                    borderRadius: '999px',
+                    transition: 'width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                  }} />
+                </div>
+              </div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', margin: 0 }}>
+                {matrixData?.participants?.length === usersCount 
+                  ? 'Todos os engenheiros já submeteram! 🎉' 
+                  : `Faltam ${usersCount - (matrixData?.participants?.length ?? 0)} pessoas submeterem.`}
+              </p>
+            </div>
+          )}
+
+          {/* User Status Card for Engineers */}
+          {!isPrivileged && cycle && (
+            <div className="card-elevated" style={{ 
+              background: userSubmitted ? 'rgba(34,197,94,0.03)' : 'rgba(99,102,241,0.03)',
+              border: `1px solid ${userSubmitted ? 'rgba(34,197,94,0.2)' : 'var(--border-brand)'}`
+            }}>
+              <h3 style={{ marginBottom: '12px', fontSize: '1rem' }}>Sua Autoavaliação</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ 
+                  width: '32px', height: '32px', borderRadius: '50%', 
+                  background: userSubmitted ? 'var(--green)' : 'var(--bg-elevated)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff'
+                }}>
+                  {userSubmitted ? <CheckCircle2 size={18} /> : <Circle size={18} color="var(--text-tertiary)" />}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{userSubmitted ? 'Submetida' : 'Pendente'}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>{cycle.name}</div>
+                </div>
+              </div>
+              {!userSubmitted && (
+                <Link href="/dashboard/matrix" className="btn btn-primary btn-sm btn-full" style={{ marginTop: '16px' }}>
+                  Fazer agora →
+                </Link>
+              )}
+            </div>
+          )}
 
           {/* Dimensions breakdown */}
           {published.length > 0 && (

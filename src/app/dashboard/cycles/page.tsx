@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, Plus, CheckCircle2, AlertTriangle, Play, Square } from 'lucide-react';
+import { RefreshCw, Plus, CheckCircle2, AlertTriangle, Play, Square, Calendar, Hash, ArrowRight } from 'lucide-react';
 
 export default function CyclesPage() {
   const [cycles, setCycles] = useState<any[]>([]);
@@ -61,78 +61,113 @@ export default function CyclesPage() {
     }
   }
 
-  if (loading) return <div className="spinner" style={{ margin: '40px auto' }} />;
+  if (loading) return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+      <div className="spinner" style={{ width: 40, height: 40 }} />
+    </div>
+  );
 
   return (
-    <div className="animate-fade" style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+    <div className="animate-fade">
+      <div className="page-header">
         <div>
           <h1 className="page-title">Ciclos de Avaliação</h1>
-          <p className="page-subtitle">Gerencie os períodos de autoavaliação e feedback do time.</p>
+          <p className="page-subtitle">Gerencie os períodos de autoavaliação e feedback do time</p>
         </div>
       </div>
 
-      <div className="card-elevated" style={{ marginBottom: '32px' }}>
-        <h3 style={{ marginBottom: '16px', fontSize: '1rem' }}>Iniciar Novo Ciclo</h3>
-        <form onSubmit={createCycle} style={{ display: 'flex', gap: '12px' }}>
-          <input
-            type="text"
-            className="input-field"
-            placeholder="Ex: Q3 2026"
-            value={newCycleName}
-            onChange={e => setNewCycleName(e.target.value)}
-            style={{ flex: 1 }}
-            required
-          />
-          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-            {isSubmitting ? <span className="spinner" style={{ width: 16, height: 16 }} /> : <><Plus size={16} /> Abrir Ciclo</>}
-          </button>
-        </form>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', marginTop: '8px' }}>Ao abrir um novo ciclo, os ciclos anteriores serão fechados automaticamente.</p>
-      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px', alignItems: 'start' }}>
+        {/* Cycles List */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {cycles.length === 0 ? (
+            <div className="empty-state card-elevated" style={{ padding: '60px 20px' }}>
+              <div className="empty-icon"><RefreshCw size={48} color="var(--text-tertiary)" /></div>
+              <div className="empty-title">Nenhum ciclo criado</div>
+              <div className="empty-description">Crie seu primeiro ciclo de avaliação para começar.</div>
+            </div>
+          ) : (
+            cycles.map(cycle => (
+              <div key={cycle.id} className="card-elevated" style={{ 
+                padding: '20px 24px', 
+                borderLeft: `4px solid ${cycle.is_active ? 'var(--green)' : 'var(--border-default)'}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                  <div style={{ 
+                    width: '48px', height: '48px', borderRadius: '12px',
+                    background: cycle.is_active ? 'rgba(34,197,94,0.1)' : 'var(--bg-elevated)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: cycle.is_active ? 'var(--green)' : 'var(--text-tertiary)'
+                  }}>
+                    <Hash size={24} />
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                      <h3 style={{ fontSize: '1.125rem', margin: 0 }}>{cycle.name}</h3>
+                      {cycle.is_active ? (
+                        <span className="badge badge-green" style={{ fontSize: '0.6875rem' }}>ATIVO</span>
+                      ) : (
+                        <span className="badge badge-secondary" style={{ fontSize: '0.6875rem' }}>FECHADO</span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '16px', fontSize: '0.8125rem', color: 'var(--text-tertiary)' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Calendar size={14} /> Criado em {new Date(cycle.created_at).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-      <div className="card-elevated" style={{ padding: 0 }}>
-        <table className="table" style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ padding: '16px', borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>Nome do Ciclo</th>
-              <th style={{ padding: '16px', borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>Data de Criação</th>
-              <th style={{ padding: '16px', borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>Status</th>
-              <th style={{ padding: '16px', borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cycles.map(cycle => (
-              <tr key={cycle.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                <td style={{ padding: '16px', fontWeight: 500 }}>{cycle.name}</td>
-                <td style={{ padding: '16px', color: 'var(--text-secondary)' }}>{new Date(cycle.created_at).toLocaleDateString('pt-BR')}</td>
-                <td style={{ padding: '16px' }}>
-                  {cycle.is_active ? (
-                    <span className="badge badge-success"><CheckCircle2 size={12} /> Aberto</span>
-                  ) : (
-                    <span className="badge badge-error"><AlertTriangle size={12} /> Fechado</span>
-                  )}
-                </td>
-                <td style={{ padding: '16px' }}>
+                <div style={{ display: 'flex', gap: '12px' }}>
                   <button 
-                    className={cycle.is_active ? "btn btn-secondary btn-sm" : "btn btn-primary btn-sm"}
+                    className={`btn btn-sm ${cycle.is_active ? 'btn-secondary' : 'btn-primary'}`}
                     onClick={() => toggleStatus(cycle.id, cycle.is_active)}
-                    style={{ padding: '6px 12px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    style={{ minWidth: '100px' }}
                   >
                     {cycle.is_active ? <><Square size={14} /> Encerrar</> : <><Play size={14} /> Reabrir</>}
                   </button>
-                </td>
-              </tr>
-            ))}
-            {cycles.length === 0 && (
-              <tr>
-                <td colSpan={4} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
-                  Nenhum ciclo encontrado. Crie o seu primeiro acima.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Create Sidebar */}
+        <div className="card-elevated" style={{ position: 'sticky', top: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+            <div style={{ background: 'rgba(0,23,81,0.08)', color: 'var(--brand-primary)', padding: '8px', borderRadius: '8px', display: 'flex' }}>
+              <Plus size={20} />
+            </div>
+            <h3 style={{ fontSize: '1rem', margin: 0 }}>Novo Ciclo</h3>
+          </div>
+          
+          <form onSubmit={createCycle} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="input-group">
+              <label className="input-label">Nome do Ciclo</label>
+              <input
+                type="text"
+                className="input"
+                placeholder="Ex: Q3 2026"
+                value={newCycleName}
+                onChange={e => setNewCycleName(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="alert alert-info" style={{ fontSize: '0.8125rem', lineHeight: '1.4' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <AlertTriangle size={16} style={{ flexShrink: 0 }} />
+                <span>Ao abrir um novo ciclo, qualquer outro ciclo ativo será <strong>encerrado automaticamente</strong>.</span>
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary btn-full" disabled={isSubmitting}>
+              {isSubmitting ? <span className="spinner spinner-sm" /> : 'Abrir Novo Ciclo'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
