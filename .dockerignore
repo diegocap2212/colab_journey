@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.gitignore
+README.md
+.env*.local
+data/*.db
+data/*.db-shm
+data/*.db-wal
