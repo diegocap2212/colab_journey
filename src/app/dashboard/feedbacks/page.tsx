@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useUser } from '../layout';
-import { PenSquare, Inbox, Trash2, X } from 'lucide-react';
+import { PenSquare, Inbox, Trash2, X, Target, Zap } from 'lucide-react';
 
 const DIMS = [
   { key: 'execution', label: 'Execução' },
@@ -57,7 +57,11 @@ export default function FeedbacksPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Feedbacks</h1>
-          <p className="page-subtitle">{feedbacks.length} registros no total</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', margin: 0 }}>
+            {isPrivileged
+              ? `${feedbacks.length} feedbacks registrados · Clique em uma linha para ver os detalhes`
+              : `${feedbacks.filter(f => !f.is_draft && f.engineer_email === user?.email).length} feedbacks recebidos · Use os resultados para criar metas no PDI`}
+          </p>
         </div>
         {isPrivileged && (
           <Link href="/dashboard/new-feedback" className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -101,7 +105,14 @@ export default function FeedbacksPage() {
             <div className="empty-state">
               <div className="empty-icon"><Inbox size={48} color="var(--text-tertiary)" /></div>
               <div className="empty-title">Nenhum feedback encontrado</div>
-              <div className="empty-description">Tente ajustar os filtros ou criar um novo feedback.</div>
+              <div className="empty-description">
+                {isPrivileged ? 'Tente ajustar os filtros ou avaliar um engenheiro.' : 'Aguarde seu gestor publicar um feedback. Enquanto isso, preencha sua autoavaliação.'}
+              </div>
+              {!isPrivileged && (
+                <Link href="/dashboard/matrix" className="btn btn-secondary btn-sm" style={{ marginTop: '12px' }}>
+                  <Zap size={14} /> Ir para Autoavaliação
+                </Link>
+              )}
             </div>
           ) : (
             <div className="table-container">
@@ -214,11 +225,18 @@ export default function FeedbacksPage() {
               </div>
             )}
 
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <span className={`badge ${selected.is_draft ? 'badge-yellow' : 'badge-green'}`}>
-                {selected.is_draft ? 'Rascunho' : 'Publicado'}
-              </span>
-              {selected.is_anonymous && <span className="badge badge-purple">Anônimo</span>}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <span className={`badge ${selected.is_draft ? 'badge-yellow' : 'badge-green'}`}>
+                  {selected.is_draft ? 'Rascunho' : 'Publicado'}
+                </span>
+                {selected.is_anonymous && <span className="badge badge-purple">Anônimo</span>}
+              </div>
+              {!isPrivileged && !selected.is_draft && (
+                <Link href="/dashboard/pdi" className="btn btn-primary btn-sm" style={{ marginTop: '4px' }}>
+                  <Target size={13} /> Criar meta no PDI
+                </Link>
+              )}
             </div>
           </div>
         )}

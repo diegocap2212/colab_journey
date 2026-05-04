@@ -451,6 +451,10 @@ a:hover { text-decoration: underline; }
   from { transform: translateY(-8px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.88); }
+}
 .animate-fade { animation: fadeIn 0.3s ease; }
 .animate-slide-up { animation: slideUp 0.3s ease; }
 
