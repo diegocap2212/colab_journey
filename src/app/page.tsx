@@ -98,16 +98,7 @@ export default function LoginPage() {
       }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: '56px', height: '56px',
-            background: 'linear-gradient(135deg, var(--brand-primary), var(--brand-secondary))',
-            borderRadius: '16px', marginBottom: '16px',
-            boxShadow: 'var(--shadow-brand)',
-            color: '#fff',
-          }}>
-            <Zap size={32} />
-          </div>
+          <img src="/otmowlogo.png" alt="Otmow Logo" style={{ height: '56px', width: 'auto', marginBottom: '16px' }} />
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.03em', marginBottom: '4px' }}>
             Ótmow People
           </h1>

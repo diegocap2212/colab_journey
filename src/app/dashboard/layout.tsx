@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
 
   useEffect(() => {
-    fetch('/api/auth/me').then(r => {
+    fetch('/api/auth/me', { cache: 'no-store' }).then(r => {
       if (!r.ok) { router.push('/'); return null; }
       return r.json();
     }).then(data => {
@@ -76,14 +76,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             display: 'flex', alignItems: 'center', gap: '12px',
             minHeight: '64px',
           }}>
-            <div style={{
-              width: '32px', height: '32px', flexShrink: 0,
-              background: 'linear-gradient(135deg, var(--brand-primary), var(--brand-secondary))',
-              borderRadius: '8px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Zap size={20} color="#fff" />
-            </div>
+            <img src="/otmowlogo.png" alt="Otmow Logo" style={{ height: '32px', width: 'auto', flexShrink: 0 }} />
             {sidebarOpen && (
               <div style={{ overflow: 'hidden' }}>
                 <div style={{ fontWeight: 800, fontSize: '0.9375rem', whiteSpace: 'nowrap' }}>Ótmow People</div>
